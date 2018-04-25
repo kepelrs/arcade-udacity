@@ -9,7 +9,7 @@
  * drawn but that is not the case. What's really happening is the entire "scene"
  * is being drawn over and over, presenting the illusion of animation.
  *
- * This engine makes the canvas' context (ctx) object globally available to make 
+ * This engine makes the canvas' context (ctx) object globally available to make
  * writing app.js a little simpler to work with.
  */
 
@@ -22,6 +22,7 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
+        lastSpawn = Date.now(),
         lastTime;
 
     canvas.width = 505;
@@ -79,6 +80,8 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
+        removeOldEnemies();
+        addNewEnemy(player.level);
         // checkCollisions();
     }
 
@@ -117,9 +120,9 @@ var Engine = (function(global) {
             numRows = 6,
             numCols = 5,
             row, col;
-        
+
         // Before drawing, clear existing canvas
-        ctx.clearRect(0,0,canvas.width,canvas.height)
+        ctx.clearRect(0,0,canvas.width,canvas.height);
 
         /* Loop through the number of rows and columns we've defined above
          * and, using the rowImages array, draw the correct image for that
@@ -164,6 +167,37 @@ var Engine = (function(global) {
         // noop
     }
 
+    /* Remove enemies when they are no longer in the canvas */
+    function removeOldEnemies() {
+        allEnemies.forEach(function(enemy,index) {
+            if (enemy.x > 500) {
+                allEnemies.splice(index, 1);
+            }
+        });
+    }
+
+    /* Add new enemy at random, according to player level */
+    function addNewEnemy(playerLevel) {
+        // limit spawn rate to a maximum of 1 spawn per second
+        if (Date.now() - lastSpawn < 1000) {
+            return;
+        }
+
+        //set spawn rate of enemies
+        var spawnRate = playerLevel,
+            enemyPositionY = getRandomInt(100, 300) ;
+
+        // spawn at a rate * player level
+        if(getRandomInt(0, 250) >= spawnRate) {
+            return;
+        } else {
+            allEnemies.push(new Enemy(enemyPositionY, player.level));
+            lastSpawn = Date.now();
+        }
+    }
+
+
+
     /* Go ahead and load all of the images we know we're going to need to
      * draw our game level. Then set init as the callback method, so that when
      * all of these images are properly loaded our game will start.
@@ -173,7 +207,7 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-horn-girl.png'
     ]);
     Resources.onReady(init);
 

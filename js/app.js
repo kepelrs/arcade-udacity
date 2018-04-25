@@ -1,10 +1,9 @@
 // Enemies our player must avoid
-var Enemy = function() {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
-
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
+var Enemy = function(startRow, speedMultiplier) {
+    this.x = -100;  // start off canvas
+    this.y = startRow;
+    // Random speed (in pixels per second) times provided multiplier (to support game getting harder)
+    this.speed = speedMultiplier ? speedMultiplier * getRandomInt(25,50) : getRandomInt(25,50);
     this.sprite = 'images/enemy-bug.png';
 };
 
@@ -14,6 +13,8 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
+    this.x += dt * this.speed;
+    console.log(this.x);
 };
 
 // Draw the enemy on the screen, required method for game
@@ -24,11 +25,48 @@ Enemy.prototype.render = function() {
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
+var Player = function(name) {
+    this.level = 1;
+    this.sprite = 'images/char-horn-girl.png';
+    this.positionX = 2 * 101; // start at the bottom-center
+    this.positionY = 5 * 83;
+    this.maxX = 4 * 101;      // prevent player from leaving canvas
+    this.maxY = 5 * 83;
+};
+
+Player.prototype.update = function() {
+    // check if hit
+    // check if win
+    // delete if outside of canvas
+};
+
+Player.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.positionX, this.positionY);
+};
+
+Player.prototype.handleInput = function(userInput) {
+    switch (userInput) {
+        case 'up':
+            this.positionY = this.positionY - 83 < 0 ? this.positionY : this.positionY - 83;
+            break;
+        case 'down':
+            this.positionY = this.positionY + 83 > this.maxY ? this.positionY : this.positionY + 83;
+            break;
+        case 'left':
+            this.positionX = this.positionX - 101 < 0 ? this.positionX : this.positionX - 101;
+            break;
+        case 'right':
+            this.positionX = this.positionX + 101 > this.maxX ? this.positionX : this.positionX + 101;
+            break;
+    }
+};
 
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
+var allEnemies = [new Enemy(60), new Enemy(300)];
 // Place the player object in a variable called player
+var player = new Player();
 
 
 
@@ -44,3 +82,11 @@ document.addEventListener('keyup', function(e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
+// Random integer function
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+}
