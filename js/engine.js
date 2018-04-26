@@ -23,6 +23,7 @@ var Engine = (function(global) {
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastSpawn = Date.now(),
+        modals = document.querySelectorAll('.modal-container'),
         lastTime;
 
     canvas.width = 505;
@@ -40,7 +41,8 @@ var Engine = (function(global) {
          * computer is) - hurray time!
          */
         var now = Date.now(),
-            dt = (now - lastTime) / 1000.0;
+            // calculate dt or freeze game if modal is open
+            dt = modalIsOpen() ? 0 : (now - lastTime) / 1000.0;
 
         /* Call our update/render functions, pass along the time delta to
          * our update function since it may be used for smooth animation.
@@ -52,6 +54,7 @@ var Engine = (function(global) {
          * for the next time this function is called.
          */
         lastTime = now;
+
 
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
@@ -80,9 +83,12 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        removeOldEnemies();
-        addNewEnemy(player.level);
-        // checkCollisions();
+        // only spawn enemies when dt positive (game is running)
+        if(dt){
+            removeOldEnemies();
+            addNewEnemy(player.level);
+            // checkCollisions();
+        }
     }
 
     /* This is called by the update function and loops through all of the
@@ -194,6 +200,16 @@ var Engine = (function(global) {
             allEnemies.push(new Enemy(enemyPositionY, player.level));
             lastSpawn = Date.now();
         }
+    }
+
+    /* Halt game: returns true when modal open */
+    function modalIsOpen() {
+        for (let modal of modals) {
+            if (!['none', ''].includes(getComputedStyle(modal).display)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
