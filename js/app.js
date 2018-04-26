@@ -14,7 +14,6 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
     this.x += dt * this.speed;
-    console.log(this.x);
 };
 
 // Draw the enemy on the screen, required method for game
@@ -89,4 +88,34 @@ function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+}
+
+/*
+ * Game over message
+ * This function opens the game over modal (class='postgame').
+ * It also handles displaying the final score
+*/
+const modalPostgame = document.querySelector('.postgame');
+const starScore = modalPostgame.querySelector('.star-score');
+const moveScore = modalPostgame.querySelector('.move-score');
+const timerScore = modalPostgame.querySelector('.timer-score');
+
+function gameOverMessage() {
+    modalPostgame.style.display = 'flex';
+    starScore.innerHTML = `<li><i class="fa fa-star"></i></li>`.repeat(2);
+    moveScore.innerHTML = `You finished the game in just ${undefined} moves.`;
+    timerScore.innerHTML = `Your total time was ${undefined}.`;
+}
+
+// Modal buttons behavior
+// dismiss modal button behavior
+const dismissBtns = document.querySelectorAll('.modal-dismiss');
+
+for (let btn of dismissBtns) {
+
+    btn.addEventListener('click', function(evt) {
+        let modal = evt.target.parentElement.parentElement;
+
+        modal.style.display = 'none';
+    });
 }

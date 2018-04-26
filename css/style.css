@@ -1,3 +1,78 @@
 body {
     text-align: center;
+    margin: 0;
+    padding: 0;
+    font-family: 'Coda', cursive;
+}
+
+/* Modal */
+
+.modal-container {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    z-index: 100;
+    background-color: rgba(0,0,0,.35);
+    transition-duration: 0.5s;
+}
+
+.modal-content {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 450px;
+    padding: 15px 15px 25px 15px;
+    background: white url(../images/geometry2.png);;
+    border-radius: 10px;
+}
+
+.modal-box * {
+    margin-top: 10px;
+}
+
+.styled-btn,
+.styled-btn:focus {
+    outline: none;
+    cursor: pointer;
+    background-color: rgba(0,140,186,1);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    padding: 10px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    box-shadow: 5px 5px 5px rgba(0,0,0,.2);
+    transition-duration: 0.5s;
+}
+
+.styled-btn:hover {
+    box-shadow: 2px 2px 1px rgba(0,0,0,.2)
+}
+
+.star-score {
+    display: block;
+    margin: 0;
+}
+
+.star-score * {
+    margin: 0;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: inline-block;
+}
+
+.pregame {
+    display: flex;
+}
+
+.postgame {
+    display: none;
 }

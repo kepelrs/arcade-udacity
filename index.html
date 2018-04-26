@@ -3,9 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Effective JavaScript: Frogger</title>
+    <link rel="stylesheet prefetch" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+    <link rel="stylesheet prefetch" href="https://fonts.googleapis.com/css?family=Coda">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <section class="modal-container pregame">
+        <div class="modal-content">
+            <h2>Welcome!</h2>
+            <p>In this arcade game your goal is to survive as long as possible without hitting the enemies or falling into the water.</p>
+            <p>The game will get harder as you go, but you can always take a rest in the grass if you would like.</p>
+            <p>Keep in mind getting in and out of the grass will not count you points!.</p>
+            <button class="styled-btn modal-dismiss">Click to start!</button>
+        </div>
+    </section>
+
+    <section class="modal-container postgame">
+        <div class="modal-content">
+            <h2>Congratulations!</h2>
+            <div class="star-score"></div>
+            <p class="move-score"></p>
+            <p class="timer-score"></p>
+            <button class="styled-btn modal-dismiss">Play Again</button>
+        </div>
+    </section>
+
     <script src="js/resources.js"></script>
     <script src="js/app.js"></script>
     <script src="js/engine.js"></script>
