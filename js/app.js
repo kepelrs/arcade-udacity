@@ -1,33 +1,35 @@
-// Enemies our player must avoid
+/**
+* @description Enemies to avoid
+* @constructor
+* @param {integer} speedMultiplier - An integer which will determined the enemy's speed
+*/
 var Enemy = function(speedMultiplier) {
-    this.x = -100;  // start off canvas
+    // start outside the canvas
+    this.x = -100;
     this.y = getRandomInt(1,5) * 83;
     // Random speed (in pixels per second) times provided multiplier (to support game getting harder)
     this.speed = speedMultiplier ? speedMultiplier * getRandomInt(25,50) : getRandomInt(25,50);
     this.sprite = 'images/enemy-bug.png';
     this.spirteSizeX = 101;
-    // store how many enemies spawned
-    player.spawnedEnemies += 1;
+    // store how many enemies spawned in the player
+    player.defeatedEnemies += 1;
 };
 
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
+// Update the enemy's position based on delta time
 Enemy.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
     this.x += dt * this.speed;
 };
 
-// Draw the enemy on the screen, required method for game
+// Draw the enemy on the screen
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
-var Player = function(name) {
+
+/*
+ * Player class
+ */
+var Player = function() {
     this.level = 1;
     this.sprite = 'images/char-horn-girl.png';
     this.spirteSizeX = 101;
@@ -41,19 +43,22 @@ var Player = function(name) {
     this.offsetLeft = +24;
     this.offsetRight = -23;
     // total enemies spawned
-    this.spawnedEnemies = 0;
+    this.defeatedEnemies = 0;
 
 };
 
+// Check and update player state
 Player.prototype.update = function() {
     var wasHit = this.checkIfHit();
     this.checkGameState(wasHit);
 };
 
+// Draw player to canvas
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.positionX, this.positionY);
 };
 
+// Turn keyboard inputs into player movement, but restrict to canvas size
 Player.prototype.handleInput = function(userInput) {
     switch (userInput) {
         case 'up':
@@ -71,15 +76,15 @@ Player.prototype.handleInput = function(userInput) {
     }
 };
 
-// returns true if touching enemy, otherwhise false
+// Returns true if touching enemy, otherwhise false
 Player.prototype.checkIfHit = function () {
-    for (let i of allEnemies) {
+    for (var i of allEnemies) {
         // skip enemies who are not in the same line as the player
         if (player.positionY !== i.y) {
             continue;
         }
 
-         // player if player position is completely outside of current enemy
+         // skip if player position is completely outside of current enemy
         if (player.positionX + player.spirteSizeX + player.offsetRight < i.x ||
             player.positionX + player.offsetLeft > i.x + i.spirteSizeX) {
             continue;
@@ -91,39 +96,49 @@ Player.prototype.checkIfHit = function () {
     return false;
 };
 
-// check if player was hit or reached the river
+// Check if player was hit or reached the river
 Player.prototype.checkGameState = function (wasHit) {
+    // If player touched an enemy:
     if (wasHit) {
         gameOverMessage();
+
+    // If player reached the river
     } else if (this.positionY === 0) {
-        // store this for later use
-        let thisPlayer = this;
+        // prevent multiple level ups during game loop
+        this.positionY = 1;
 
-        // prevent multiple level ups at once
-        thisPlayer.positionY = 1;
-
-        // delay level up animation reset
-        setTimeout(function() {
-            thisPlayer.levelUp();
-        }, 100);
+        // level up player
+        this.levelUp();
     }
 };
 
+// Level up the player upon reaching river
 Player.prototype.levelUp = function () {
-    // reset at the bottom-center
-    this.positionX = 2 * 101;
-    this.positionY = 5 * 83;
-    this.level += 1;
+    // store this player for later use
+    var thisPlayer = this;
+
+    thisPlayer.level += 1;
+
+    // Allow player to see himself reaching the river
+    setTimeout(function() {
+        // reset position to the bottom-center
+        thisPlayer.positionX = 2 * 101;
+        thisPlayer.positionY = 5 * 83;
+    }, 100);
 };
 
-// Enemies array: allEnemies.
-// Player object: player variable
+
+/*
+ * allEnemies: Enemies array.
+ * Player object: player.
+ */
 var [allEnemies, player] = resetGame();
 
 
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+/*
+ * Helper event listener for Player.handleInput() method.
+ */
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',
@@ -135,8 +150,10 @@ document.addEventListener('keyup', function(e) {
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
-// Random integer function
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+/*
+ * Random integer function
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+ */
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -148,25 +165,24 @@ function getRandomInt(min, max) {
  * This function opens the game over modal (class='postgame').
  * It also handles displaying the final score
 */
-const modalPostgame = document.querySelector('.postgame');
-const starScore = modalPostgame.querySelector('.star-score');
-const moveScore = modalPostgame.querySelector('.move-score');
-const enemyScore = modalPostgame.querySelector('.enemy-score');
+var modalPostgame = document.querySelector('.postgame');
+var starScore = modalPostgame.querySelector('.star-score');
+var moveScore = modalPostgame.querySelector('.move-score');
+var enemyScore = modalPostgame.querySelector('.enemy-score');
 
 function gameOverMessage() {
     modalPostgame.style.display = 'flex';
     starScore.innerHTML = `<li><i class="fa fa-star"></i></li>`.repeat(player.level - 1);
     moveScore.innerHTML = `You managed to reach the river ${player.level - 1} times.`;
-    enemyScore.innerHTML = `You managed to beat ${player.spawnedEnemies} spawned enemies.`;
+    enemyScore.innerHTML = `You have also outsmarted ${player.defeatedEnemies} enemy bugs.`;
 }
 
 /*
  * Modal buttons behavior
- *
  * Dismiss modal and restart game variables.
  */
 
-const modalButtons = document.querySelectorAll('.modal-dismiss');
+var modalButtons = document.querySelectorAll('.modal-dismiss');
 
 function resetGame() {
     player = new Player();
@@ -175,11 +191,11 @@ function resetGame() {
 }
 
 // add event listener to all modal buttons
-for (let btn of modalButtons) {
+for (var btn of modalButtons) {
 
     btn.addEventListener('click', function(evt) {
         // dismiss modal
-        let modal = evt.target.parentElement.parentElement;
+        var modal = evt.target.parentElement.parentElement;
         modal.style.display = 'none';
 
         // reset game

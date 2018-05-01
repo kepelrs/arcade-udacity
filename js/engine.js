@@ -202,7 +202,7 @@ var Engine = (function(global) {
 
     /* Halt game: returns true when modal open */
     function modalIsOpen() {
-        for (let modal of modals) {
+        for (var modal of modals) {
             if (!['none', ''].includes(getComputedStyle(modal).display)) {
                 player.handleInput = function() {};
                 return true;
