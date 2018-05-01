@@ -191,7 +191,7 @@ var Engine = (function(global) {
 
         //set spawn rate of enemies
         var spawnRate = playerLevel,
-            enemyPositionY = getRandomInt(100, 300) ;
+            enemyPositionY = getRandomInt(1, 5) * 83;
 
         // spawn at a rate * player level
         if(getRandomInt(0, 250) >= spawnRate) {
