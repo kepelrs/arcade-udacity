@@ -184,19 +184,18 @@ var Engine = (function(global) {
     /* Add new enemy at random, according to player level */
     function addNewEnemy(playerLevel) {
         // limit spawn rate to a maximum of 1 spawn per second
-        if (Date.now() - lastSpawn < 1000) {
+        if (Date.now() - lastSpawn < 1000 / playerLevel) {
             return;
         }
 
         //set spawn rate of enemies
-        var spawnRate = playerLevel,
-            enemyPositionY = getRandomInt(1, 5) * 83;
+        var spawnRate = playerLevel;
 
         // spawn at a rate * player level
         if(getRandomInt(0, 250) >= spawnRate) {
             return;
         } else {
-            allEnemies.push(new Enemy(enemyPositionY, player.level));
+            allEnemies.push(new Enemy(playerLevel));
             lastSpawn = Date.now();
         }
     }
@@ -205,6 +204,7 @@ var Engine = (function(global) {
     function modalIsOpen() {
         for (let modal of modals) {
             if (!['none', ''].includes(getComputedStyle(modal).display)) {
+                player.handleInput = function() {};
                 return true;
             }
         }

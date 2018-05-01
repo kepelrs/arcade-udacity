@@ -1,11 +1,13 @@
 // Enemies our player must avoid
-var Enemy = function(startRow, speedMultiplier) {
+var Enemy = function(speedMultiplier) {
     this.x = -100;  // start off canvas
-    this.y = startRow;
+    this.y = getRandomInt(1,5) * 83;
     // Random speed (in pixels per second) times provided multiplier (to support game getting harder)
     this.speed = speedMultiplier ? speedMultiplier * getRandomInt(25,50) : getRandomInt(25,50);
     this.sprite = 'images/enemy-bug.png';
     this.spirteSizeX = 101;
+    // store how many enemies spawned
+    player.spawnedEnemies += 1;
 };
 
 // Update the enemy's position, required method for game
@@ -38,12 +40,14 @@ var Player = function(name) {
     // sprite hit box
     this.offsetLeft = +24;
     this.offsetRight = -23;
+    // total enemies spawned
+    this.spawnedEnemies = 0;
 
 };
 
 Player.prototype.update = function() {
     var wasHit = this.checkIfHit();
-    this.checkGameOver(wasHit);
+    this.checkGameState(wasHit);
 };
 
 Player.prototype.render = function() {
@@ -88,17 +92,33 @@ Player.prototype.checkIfHit = function () {
 };
 
 // check if player was hit or reached the river
-Player.prototype.checkGameOver = function (wasHit) {
-    if (wasHit || this.positionY === 0) {
+Player.prototype.checkGameState = function (wasHit) {
+    if (wasHit) {
         gameOverMessage();
+    } else if (this.positionY === 0) {
+        // store this for later use
+        let thisPlayer = this;
+
+        // prevent multiple level ups at once
+        thisPlayer.positionY = 1;
+
+        // delay level up animation reset
+        setTimeout(function() {
+            thisPlayer.levelUp();
+        }, 100);
     }
 };
 
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-var allEnemies = [new Enemy(83), new Enemy(83*4)];
-// Place the player object in a variable called player
-var player = new Player();
+Player.prototype.levelUp = function () {
+    // reset at the bottom-center
+    this.positionX = 2 * 101;
+    this.positionY = 5 * 83;
+    this.level += 1;
+};
+
+// Enemies array: allEnemies.
+// Player object: player variable
+var [allEnemies, player] = resetGame();
 
 
 
@@ -131,24 +151,38 @@ function getRandomInt(min, max) {
 const modalPostgame = document.querySelector('.postgame');
 const starScore = modalPostgame.querySelector('.star-score');
 const moveScore = modalPostgame.querySelector('.move-score');
-const timerScore = modalPostgame.querySelector('.timer-score');
+const enemyScore = modalPostgame.querySelector('.enemy-score');
 
 function gameOverMessage() {
     modalPostgame.style.display = 'flex';
-    starScore.innerHTML = `<li><i class="fa fa-star"></i></li>`.repeat(2);
-    moveScore.innerHTML = `You finished the game in just ${undefined} moves.`;
-    timerScore.innerHTML = `Your total time was ${undefined}.`;
+    starScore.innerHTML = `<li><i class="fa fa-star"></i></li>`.repeat(player.level - 1);
+    moveScore.innerHTML = `You managed to reach the river ${player.level - 1} times.`;
+    enemyScore.innerHTML = `You managed to beat ${player.spawnedEnemies} spawned enemies.`;
 }
 
-// Modal buttons behavior
-// dismiss modal button behavior
-const dismissBtns = document.querySelectorAll('.modal-dismiss');
+/*
+ * Modal buttons behavior
+ *
+ * Dismiss modal and restart game variables.
+ */
 
-for (let btn of dismissBtns) {
+const modalButtons = document.querySelectorAll('.modal-dismiss');
+
+function resetGame() {
+    player = new Player();
+    allEnemies = [new Enemy(), new Enemy()];
+    return [allEnemies, player];
+}
+
+// add event listener to all modal buttons
+for (let btn of modalButtons) {
 
     btn.addEventListener('click', function(evt) {
+        // dismiss modal
         let modal = evt.target.parentElement.parentElement;
-
         modal.style.display = 'none';
+
+        // reset game
+        resetGame();
     });
 }
